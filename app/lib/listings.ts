@@ -43,13 +43,6 @@ export function relatedListings(l: Listing, n = 3) {
 /** South African formatting: R1 895 000. Listings without a price are "Price on request". */
 export function formatPrice(n: number | null) {
   if (!n) return "Price on request";
-  return "R" + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  const NBSP = String.fromCharCode(160); // non-breaking space keeps "R1 895 000" from wrapping mid-number
+  return "R" + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
 }
-
-export const SALES_CONTACT = {
-  name: "Richard Fulford",
-  phone: "+27 82 990 7225",
-  tel: "+27829907225",
-  whatsapp: "27829907225",
-  email: "richard@stfrancisyamaha.co.za",
-};

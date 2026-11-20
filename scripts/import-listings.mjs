@@ -8,14 +8,15 @@
 
 import { mkdirSync, writeFileSync, existsSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const SOURCE = "https://www.stfrancisbayyamaha.com/boat-sales?format=json";
-const ROOT = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const IMG_DIR = join(ROOT, "public", "images", "stock");
 const DATA_FILE = join(ROOT, "data", "listings.json");
 const SOLD_TO_KEEP = 12; // most recent sold listings shown as a "recently sold" strip
 
-// Fixes for known data problems on the old site, keyed by Squarespace urlId suffix match.
+// Fixes for known data problems on the old site, matched against the original product title.
 const OVERRIDES = [
   // Duplicated product whose title was never updated from "Mystique 212 (Copy)".
   { match: (it) => /\(copy\)/i.test(it.title), title: "15.6 Dolphin Ski Boat with 2 x New Yamaha 40hp" },

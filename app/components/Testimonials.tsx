@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { delay } from "../lib/motion";
 
-const quotes = [
+const QUOTES = [
   {
     text: "Bought it from the best place in town! You will be looked after by Richard Fulford and his team.",
     name: "Richard Harpur",
@@ -26,33 +27,33 @@ const INTERVAL = 7000;
 export default function Testimonials() {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
-  const go = (d: number) => setI((p) => (p + d + quotes.length) % quotes.length);
-  const q = quotes[i];
+  const go = (d: number) => setI((p) => (p + d + QUOTES.length) % QUOTES.length);
+  const q = QUOTES[i];
   const pad = (n: number) => String(n).padStart(2, "0");
 
   useEffect(() => {
     if (paused || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setTimeout(() => setI((p) => (p + 1) % quotes.length), INTERVAL);
+    const t = setTimeout(() => setI((p) => (p + 1) % QUOTES.length), INTERVAL);
     return () => clearTimeout(t);
   }, [i, paused]);
 
   // Basic swipe support on touch screens.
-  const [touchX, setTouchX] = useState<number | null>(null);
+  const touchX = useRef<number | null>(null);
 
   return (
     <section
-      className="px-5 py-20 sm:px-6 lg:px-12 lg:py-28"
+      className="gutter py-20 lg:py-28"
       aria-label="Testimonials"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
-      onTouchStart={(e) => setTouchX(e.touches[0].clientX)}
+      onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
       onTouchEnd={(e) => {
-        if (touchX === null) return;
-        const dx = e.changedTouches[0].clientX - touchX;
+        if (touchX.current === null) return;
+        const dx = e.changedTouches[0].clientX - touchX.current;
         if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
-        setTouchX(null);
+        touchX.current = null;
       }}
     >
       <div className="mx-auto max-w-7xl">
@@ -68,7 +69,7 @@ export default function Testimonials() {
           >
             &ldquo;
           </span>
-          <figure data-reveal style={{ "--d": "120ms" } as React.CSSProperties}>
+          <figure data-reveal style={delay(120)}>
             <div className="min-h-[7.5em] text-[24px] leading-snug sm:min-h-[5em] md:text-[34px]">
               <blockquote key={i} aria-live="polite" className="quote-in max-w-3xl font-medium text-ink">
                 {q.text}
@@ -89,7 +90,7 @@ export default function Testimonials() {
                 </button>
                 <div className="w-16 text-center">
                   <span className="text-xs tabular-nums text-muted">
-                    {pad(i + 1)} / {pad(quotes.length)}
+                    {pad(i + 1)} / {pad(QUOTES.length)}
                   </span>
                   <span className="mt-2 block h-px overflow-hidden bg-ink/10">
                     <span

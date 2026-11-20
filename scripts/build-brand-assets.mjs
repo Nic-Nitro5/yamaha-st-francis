@@ -1,10 +1,9 @@
-// Builds logo variants and favicons from the dealership logo (public/images/logo.webp).
+// Builds the header logo and favicons from the dealership logo (assets/logo-source.webp).
 //
 //   node scripts/build-brand-assets.mjs
 //
 // Outputs:
-//   public/images/logo-on-light.png  trimmed original (red + black), for light backgrounds
-//   public/images/logo-on-dark.png   same, with the black "ST. FRANCIS" + divider turned white
+//   public/images/logo-on-dark.png   trimmed logo with the black "ST. FRANCIS" + divider turned white
 //   app/icon.png, app/apple-icon.png favicons built from the St Francis boat mark
 //   app/favicon.ico                  multi-size .ico (16/32/48) for older browsers
 // Run again if the source logo changes.
@@ -12,15 +11,14 @@
 import sharp from "sharp";
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
-const SRC = join(ROOT, "public/images/logo.webp");
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const SRC = join(ROOT, "assets/logo-source.webp");
 
-// 1. Trimmed original
 const trimmed = await sharp(SRC).ensureAlpha().trim({ threshold: 1 }).png().toBuffer();
-await sharp(trimmed).toFile(join(ROOT, "public/images/logo-on-light.png"));
 
-// 2. Dark-background variant: recolour near-black, unsaturated pixels to white.
+// 1. Dark-background variant: recolour near-black, unsaturated pixels to white.
 //    Red artwork and the silver Yamaha emblem are left untouched.
 {
   const { data, info } = await sharp(trimmed).raw().toBuffer({ resolveWithObject: true });
@@ -35,7 +33,7 @@ await sharp(trimmed).toFile(join(ROOT, "public/images/logo-on-light.png"));
   await sharp(data, { raw: info }).png().toFile(join(ROOT, "public/images/logo-on-dark.png"));
 }
 
-// 3. Favicons from the St Francis boat mark. The full mark is ~3.6:1 and shrinks to a
+// 2. Favicons from the St Francis boat mark. The full mark is ~3.6:1 and shrinks to a
 //    sliver at tab size, so crop to the rider and bow (source x 1240–1426, y 88–209),
 //    which stays recognisable down to 16px.
 const boatRaw = await sharp(SRC).extract({ left: 1240, top: 88, width: 186, height: 121 }).png().toBuffer();
@@ -79,4 +77,4 @@ writeFileSync(join(ROOT, "app/favicon.ico"), Buffer.concat([header, ...pngs]));
 
 const meta = await sharp(trimmed).metadata();
 console.log(`logo: ${meta.width}x${meta.height}  (aspect ${(meta.width / meta.height).toFixed(3)})`);
-console.log("wrote logo-on-light.png, logo-on-dark.png, app/icon.png, app/apple-icon.png, app/favicon.ico");
+console.log("wrote public/images/logo-on-dark.png, app/icon.png, app/apple-icon.png, app/favicon.ico");

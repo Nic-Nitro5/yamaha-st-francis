@@ -2,14 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
-
-function Chevron({ dir }: { dir: "left" | "right" }) {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true" className="h-4 w-4">
-      <path d={dir === "left" ? "M10 3 5 8l5 5" : "M6 3l5 5-5 5"} />
-    </svg>
-  );
-}
+import { Chevron } from "../../components/icons";
 
 export default function Gallery({ images, title }: { images: string[]; title: string }) {
   const [i, setI] = useState(0);

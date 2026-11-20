@@ -21,37 +21,62 @@ function sharedObserver() {
   return io;
 }
 
+/** [data-reveal] elements in or under `node` that are not yet shown. */
+function revealTargets(node: Element, includeScoped: boolean) {
+  const found = node.matches("[data-reveal]") ? [node] : [];
+  found.push(...node.querySelectorAll("[data-reveal]"));
+  return found.filter((el) => !el.hasAttribute("data-shown") && (includeScoped || !el.closest("[data-reveal-scope]")));
+}
+
 /**
  * Sets data-shown on each [data-reveal] element once it scrolls into view.
  *
- * It scans on mount, which is after React has hydrated the tree it sits in. The DOM
- * must not change before then, or React reports a hydration mismatch. Content
- * streamed in behind <Suspense> may hydrate later, so wrap it in an element with
- * `data-reveal-scope` and render <RevealObserver scoped /> inside it: page-level
- * observers skip scoped elements and leave them to the scoped one.
+ * The root layout renders one. It scans after React has hydrated the page, then keeps
+ * watching for elements React adds later (client-side navigation, filter changes).
+ *
+ * The DOM must not change before React hydrates it, or React reports a hydration
+ * mismatch. Server HTML streamed in behind <Suspense> can hydrate after the layout,
+ * so wrap such content in an element with `data-reveal-scope` and render
+ * <RevealObserver scoped /> inside it: the layout's observer skips scoped elements
+ * and the scoped one handles them once that boundary has hydrated.
  */
 export function RevealObserver({ scoped = false }: { scoped?: boolean }) {
   useEffect(() => {
-    const els = [...document.querySelectorAll<HTMLElement>("[data-reveal]:not([data-shown])")].filter(
-      (el) => scoped || !el.closest("[data-reveal-scope]"),
-    );
+    const root = document.body;
     if (!("IntersectionObserver" in window)) {
-      els.forEach((el) => el.setAttribute("data-shown", ""));
+      revealTargets(root, scoped).forEach((el) => el.setAttribute("data-shown", ""));
       return;
     }
     const obs = sharedObserver();
-    const mine: Element[] = [];
-    els.forEach((el) => {
-      if (watched.has(el)) return;
-      watched.add(el);
-      mine.push(el);
-      obs.observe(el);
-    });
-    return () =>
-      mine.forEach((el) => {
+    const mine = new Set<Element>();
+    const watch = (els: Element[]) =>
+      els.forEach((el) => {
+        if (watched.has(el)) return;
+        watched.add(el);
+        mine.add(el);
+        obs.observe(el);
+      });
+    const unwatch = (els: Element[]) =>
+      els.forEach((el) => {
         obs.unobserve(el);
         watched.delete(el);
+        mine.delete(el);
       });
+
+    watch(revealTargets(root, scoped));
+    if (scoped) return () => unwatch([...mine]);
+
+    const mo = new MutationObserver((records) => {
+      for (const r of records) {
+        r.addedNodes.forEach((n) => n instanceof Element && watch(revealTargets(n, false)));
+        r.removedNodes.forEach((n) => n instanceof Element && unwatch(revealTargets(n, true)));
+      }
+    });
+    mo.observe(root, { childList: true, subtree: true });
+    return () => {
+      mo.disconnect();
+      unwatch([...mine]);
+    };
   }, [scoped]);
   return null;
 }

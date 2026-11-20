@@ -1,16 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "../components/Arrow";
+import { ArrowUpRight, CameraIcon } from "../components/icons";
 import { categoryLabel, formatPrice, type Listing } from "../lib/listings";
-
-export function CameraIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true" className={className}>
-      <path d="M2 5.5h2.5L6 3.5h4l1.5 2H14v7H2z" />
-      <circle cx="8" cy="9" r="2.2" />
-    </svg>
-  );
-}
+import { stagger } from "../lib/motion";
 
 export default function ListingCard({
   listing: l,
@@ -18,15 +10,12 @@ export default function ListingCard({
   sizes = "(min-width: 1024px) 31vw, (min-width: 640px) 46vw, 92vw",
 }: {
   listing: Listing;
+  /** Position in the grid: staggers the entrance and loads the first row eagerly. */
   index?: number;
   sizes?: string;
 }) {
   return (
-    <Link
-      href={`/boat-sales/${l.slug}`}
-      className="card-in group flex flex-col"
-      style={{ "--i": Math.min(index, 8) } as React.CSSProperties}
-    >
+    <Link href={`/boat-sales/${l.slug}`} className="card-in group flex flex-col" style={stagger(Math.min(index, 8))}>
       <div className="relative aspect-[4/3] overflow-hidden bg-navy">
         <Image
           src={l.images[0]}
@@ -44,6 +33,7 @@ export default function ListingCard({
         {l.images.length > 1 && (
           <span className="absolute bottom-3 right-3 flex items-center gap-1.5 text-xs text-white">
             <CameraIcon className="h-4 w-4" />
+            <span className="sr-only">Photos:</span>
             {l.images.length}
           </span>
         )}
@@ -58,9 +48,7 @@ export default function ListingCard({
             <span className={`font-semibold tabular-nums ${l.price ? "text-lg text-ink" : "text-sm text-muted"}`}>
               {formatPrice(l.price)}
             </span>
-            {l.wasPrice && (
-              <s className="text-sm tabular-nums text-muted">{formatPrice(l.wasPrice)}</s>
-            )}
+            {l.wasPrice && <s className="text-sm tabular-nums text-muted">{formatPrice(l.wasPrice)}</s>}
           </p>
           <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-brand">
             <span className="link-line">View</span> <ArrowUpRight />

@@ -1,13 +1,18 @@
 @import "tailwindcss";
 
-@theme inline {
+/* `static` always emits these as :root variables, so plain CSS below can use them too. */
+@theme static {
   --color-brand: #d42a30;
-  --color-brand-dark: #b51f25;
+  /* Lighter red for small text on navy, where brand red lacks contrast. */
+  --color-brand-soft: #ff6b6f;
   --color-navy: #0b1a2c;
-  --color-navy-soft: #13263d;
   --color-paper: #f4f3ef;
   --color-ink: #0f1d2e;
   --color-muted: #5f6b78;
+  --color-whatsapp: #1fa855;
+}
+
+@theme inline {
   --font-sans: var(--font-inter);
 }
 
@@ -40,6 +45,36 @@ body {
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* Standard horizontal page padding. */
+@utility gutter {
+  padding-inline: 1.25rem;
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
+  @media (width >= 64rem) {
+    padding-inline: 3rem;
+  }
+}
+
+/* Lets a sideways scroller run edge to edge inside a .gutter, below the lg breakpoint. */
+@utility bleed {
+  margin-inline: -1.25rem;
+  padding-inline: 1.25rem;
+  scroll-padding-inline: 1.25rem;
+  @media (width >= 40rem) {
+    margin-inline: -1.5rem;
+    padding-inline: 1.5rem;
+    scroll-padding-inline: 1.5rem;
+  }
+}
+
+/* Pages with the fixed phone enquiry bar need room for it below the footer. */
+@media (width < 64rem) {
+  body:has([data-mobile-bar]) footer {
+    padding-bottom: calc(2.5rem + 76px);
   }
 }
 
@@ -206,6 +241,7 @@ body {
   position: absolute;
   inset: 0;
   z-index: -1;
+  /* Fill colour; buttons override with [--sweep:...] */
   background: var(--sweep, #fff);
   transform: translateX(-101%);
   transition: transform 0.5s var(--ease-io);
