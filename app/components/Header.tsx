@@ -97,7 +97,7 @@ export default function Header() {
           ))}
         </nav>
 
-        <ButtonLink href="/#contact" size="sm" style={delay(500)} className="intro hidden lg:inline-flex">
+        <ButtonLink href="/#contact" size="sm" style={delay(500)} className="intro max-lg:hidden">
           Get in touch
         </ButtonLink>
 
