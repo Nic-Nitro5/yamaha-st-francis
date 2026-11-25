@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { categoryLabel, formatPrice } from "../lib/listings";
 import { buttonClass } from "../components/ui";
 import { logout } from "./actions";
 import { requireAdmin } from "./_lib/auth";
 import { isDeploying, readListings, storeMode } from "./_lib/store";
-import DeleteButton from "./DeleteButton";
-import Thumb from "./Thumb";
+import ListingTable from "./ListingTable";
 
 export default function AdminPage({ searchParams }: PageProps<"/admin">) {
   return (
@@ -68,28 +66,18 @@ async function Dashboard({ searchParams }: Pick<PageProps<"/admin">, "searchPara
         )}
       </div>
 
-      <ul className="mt-6 divide-y divide-ink/10 border-y border-ink/10">
-        {sorted.map((l) => (
-          <li key={l.slug} className="flex items-center gap-4 py-3">
-            <Thumb src={l.images[0]} className={`h-16 w-20 shrink-0 ${l.status === "sold" ? "grayscale" : ""}`} />
-            <div className="min-w-0 flex-1">
-              <Link href={`/admin/edit?slug=${encodeURIComponent(l.slug)}`} className="line-clamp-2 font-medium leading-snug text-ink hover:text-brand">
-                {l.title}
-              </Link>
-              <p className="mt-1 text-xs text-muted">
-                {l.status === "sold" && <span className="eyebrow mr-2 bg-navy px-1.5 py-0.5 text-[10px] text-white">Sold</span>}
-                {categoryLabel(l.category)} · {formatPrice(l.price)} · {l.images.length} photo{l.images.length === 1 ? "" : "s"}
-              </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-1">
-              <Link href={`/admin/edit?slug=${encodeURIComponent(l.slug)}`} className="flex min-h-11 items-center px-3 text-sm text-ink hover:text-brand">
-                Edit
-              </Link>
-              <DeleteButton slug={l.slug} title={l.title} />
-            </div>
-          </li>
-        ))}
-      </ul>
+      <ListingTable
+        rows={sorted.map((l) => ({
+          slug: l.slug,
+          title: l.title,
+          category: l.category,
+          status: l.status,
+          year: l.year,
+          price: l.price,
+          cover: l.images[0],
+          photos: l.images.length,
+        }))}
+      />
     </>
   );
 }
