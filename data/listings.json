@@ -1,33 +1,5 @@
 [
   {
-    "slug": "test",
-    "title": "Test",
-    "category": "boats",
-    "status": "available",
-    "year": 1991,
-    "price": 200000,
-    "wasPrice": 190000,
-    "order": -1,
-    "sourceUrl": "",
-    "description": [
-      {
-        "type": "p",
-        "text": "Lorem ipsum dolor sit amet consectetur adipiscing elit. Placeat id eu dolore molestias anim. Quibusdam esse praesentium omnis magna atque et in officia velit dolor nostrud cupidatat."
-      },
-      {
-        "type": "p",
-        "text": "Quidem qui voluptas omnis nam quo tempore enim possimus quibusdam quo. Facilis et dignissimos animi officia fuga. Cupidatat proident iusto animi reprehenderit esse distinctio reprehenderit irure atque quis. In eiusmod consectetur voluptatum non eos dolor proident quo."
-      },
-      {
-        "type": "p",
-        "text": "Vero voluptatum adipiscing et repellendus eos pariatur et corrupti. Nostrud in ut sunt sint est eiusmod et quibusdam quibusdam iusto deleniti. Voluptatum est commodo eu nulla ea veniam illum omnis iusto ducimus non cum. Omnis occaecat non distinctio qui quo in accusamus deserunt ut quas aliquip. Exercitation expedita officia nihil at provident lorem aut."
-      }
-    ],
-    "images": [
-      "/images/stock/test/mww8jl6f-1.webp"
-    ]
-  },
-  {
     "slug": "1998-falcon-5-1m-rib",
     "title": "1998 Falcon 5.1m RIB",
     "category": "boats",
